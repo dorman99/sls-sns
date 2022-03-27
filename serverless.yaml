@@ -1,0 +1,32 @@
+service: serverless-sns
+
+plugins:
+  - serverless-offline
+  - serverless-offline-sns
+custom:
+  serverless-offline-sns:
+    debug: true
+    host: localhost
+    port: 4561 # a free port for the sns server to run on
+    # host: 0.0.0.0 # Optional, defaults to 127.0.0.1 if not provided to serverless-offline
+    # sns-endpoint: http://127.0.0.1:4002 # Optional. Only if you want to use a custom endpoint
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  main:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
+  incoming:
+    handler: dist/sns.handler.incomingMessage
+    name: sns-new-message-dev
+    events:
+      - sns: incoming-message
